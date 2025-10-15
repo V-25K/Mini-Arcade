@@ -1,6 +1,5 @@
 import express from 'express';
-import { InitResponse, IncrementResponse, DecrementResponse } from '../shared/types/api';
-import { redis, createServer, context } from '@devvit/web/server';
+import { createServer, context } from '@devvit/web/server';
 import { createPost } from './core/post';
 
 const app = express();
@@ -14,77 +13,21 @@ app.use(express.text());
 
 const router = express.Router();
 
-router.get<{ postId: string }, InitResponse | { status: string; message: string }>(
-  '/api/init',
-  async (_req, res): Promise<void> => {
-    const { postId } = context;
+router.get('/api/whoami', async (_req, res): Promise<void> => {
+  try {
+    // 👇 Cast to "any" because type defs don’t include "user"
+    const ctxAny = context as any;
+    const username =
+      ctxAny.user?.name || ctxAny.userName || null;
 
-    if (!postId) {
-      console.error('API Init Error: postId not found in devvit context');
-      res.status(400).json({
-        status: 'error',
-        message: 'postId is required but missing from context',
-      });
-      return;
-    }
-
-    try {
-      const count = await redis.get('count');
-      res.json({
-        type: 'init',
-        postId: postId,
-        count: count ? parseInt(count) : 0,
-      });
-    } catch (error) {
-      console.error(`API Init Error for post ${postId}:`, error);
-      let errorMessage = 'Unknown error during initialization';
-      if (error instanceof Error) {
-        errorMessage = `Initialization failed: ${error.message}`;
-      }
-      res.status(400).json({ status: 'error', message: errorMessage });
-    }
+    res.json({ username });
+  } catch (error) {
+    console.error('whoami error:', error);
+    res.status(200).json({ username: null });
   }
-);
+});
 
-router.post<{ postId: string }, IncrementResponse | { status: string; message: string }, unknown>(
-  '/api/increment',
-  async (_req, res): Promise<void> => {
-    const { postId } = context;
-    if (!postId) {
-      res.status(400).json({
-        status: 'error',
-        message: 'postId is required',
-      });
-      return;
-    }
-
-    res.json({
-      count: await redis.incrBy('count', 1),
-      postId,
-      type: 'increment',
-    });
-  }
-);
-
-router.post<{ postId: string }, DecrementResponse | { status: string; message: string }, unknown>(
-  '/api/decrement',
-  async (_req, res): Promise<void> => {
-    const { postId } = context;
-    if (!postId) {
-      res.status(400).json({
-        status: 'error',
-        message: 'postId is required',
-      });
-      return;
-    }
-
-    res.json({
-      count: await redis.incrBy('count', -1),
-      postId,
-      type: 'decrement',
-    });
-  }
-);
+// Removed demo counter endpoints (init/increment/decrement)
 
 router.post('/internal/on-app-install', async (_req, res): Promise<void> => {
   try {
