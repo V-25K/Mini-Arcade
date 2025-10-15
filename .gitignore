@@ -1,0 +1,59 @@
+node_modules/
+.yarn/
+
+# Build outputs
+dist/
+build/
+.vite/
+.cache/
+.tmp/
+.temp/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Editor/IDE
+.vscode/
+.idea/
+.history/
+.eslintcache
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archives
+*.tgz
+*.zip
+*.tar
+*.tar.gz
+
+# Tooling caches
+.devvit/
+.cursor/
+.kiro/
+
+# Project-specific
+webroot
+docs
+docs/context
+docs
+docs/context
