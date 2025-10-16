@@ -1,1 +1,3 @@
-// Demo counter API types removed
+export type WhoAmIResponse = {
+  username: string | null;
+};

@@ -2,15 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="stylesheet" href="style.css" />
-    <title>Phaser - Template</title>
+    <title>Mini Arcade</title>
   </head>
-
   <body>
-    <div id="app">
-      <div id="game-container"></div>
+    <div id="app" role="application" aria-label="Mini Arcade">
+      <div id="safe-area">
+        <div id="game-container" aria-live="polite"></div>
+      </div>
     </div>
     <script type="module" src="main.ts"></script>
   </body>
-</html>
+  </html>
+
+
