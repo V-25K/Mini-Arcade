@@ -1,5 +1,5 @@
 import express from 'express';
-import { createServer, context } from '@devvit/web/server';
+import { createServer, context, redis } from '@devvit/web/server';
 
 const app = express();
 
@@ -21,6 +21,40 @@ app.get('/api/whoami', async (_req, res): Promise<void> => {
   } catch (error) {
     console.error('whoami error:', error);
     res.status(200).json({ username: null });
+  }
+});
+
+// Memory highscore (store best pairs matched for user)
+app.get('/api/memory/highscore', async (_req, res): Promise<void> => {
+  try {
+    const ctxAny = context as any;
+    const username: string | null = ctxAny.user?.name || ctxAny.userName || null;
+    if (!username) return res.json({ score: null });
+    const key = `user:${username}:memory:highscore`;
+    const raw = await redis.get(key);
+    res.json(raw ? JSON.parse(raw) : { score: null });
+  } catch (error) {
+    console.error('memory highscore get error:', error);
+    res.status(200).json({ score: null });
+  }
+});
+
+app.post('/api/memory/highscore', async (req, res): Promise<void> => {
+  try {
+    const { score } = req.body as { score: number };
+    if (typeof score !== 'number' || !Number.isFinite(score)) return void res.status(400).json({ ok: false });
+    const ctxAny = context as any;
+    const username: string | null = ctxAny.user?.name || ctxAny.userName || null;
+    if (!username) return void res.json({ ok: true });
+    const key = `user:${username}:memory:highscore`;
+    const raw = await redis.get(key);
+    const current = raw ? (JSON.parse(raw) as { score: number }) : null;
+    const best = current ? Math.max(current.score, score) : score;
+    await redis.set(key, JSON.stringify({ score: best }));
+    res.json({ ok: true, score: best });
+  } catch (error) {
+    console.error('memory highscore set error:', error);
+    res.status(200).json({ ok: false });
   }
 });
 
